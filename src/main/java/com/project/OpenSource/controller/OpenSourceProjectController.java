@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +77,6 @@ public class OpenSourceProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
- ////////////////////////////////////////////////////////////////////////////
 
     @ApiOperation(value = "Create project")
     @ApiResponse(code = 200, message = "Successfully created project")
@@ -86,10 +85,10 @@ public class OpenSourceProjectController {
         CommonResponse response = null;
         String query = null;
         try {
-            query = "INSERT INTO opensourceproject.users (first_name, last_name, email, password, role) VALUES ( ?, ?, ?, ?, ?) ";
-            jdbcTemplate.update(query, project.getFirstName(), project.getLastName(), project.getEmail(), project.getPassword(), project.getRole());
+            query = "INSERT INTO opensourceproject.project (name, description, created_by, status, license, created_date, acknowledged_date, acknowledged_by, reason, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(query, project.getName(), project.getDescription(), project.getCreatedBy(), project.getStatus(), project.getLicense(), project.getCreatedDate(), project.getAcknowledgedDate(), project.getAcknowledgedBy(), project.getReason(), project.getLastModifiedDate());
             response = new CommonResponse();
-            response.setMessage("User got registered successfully");
+            response.setMessage("Project got created successfully.");
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -98,15 +97,15 @@ public class OpenSourceProjectController {
 
     @ApiOperation(value = "Update project")
     @ApiResponse(code = 200, message = "Successfully updated project")
-    @RequestMapping(value = "project", method = RequestMethod.PUT)
-    public ResponseEntity<CommonResponse> updateProject(@RequestBody User user) {
+    @RequestMapping(value = "project/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<CommonResponse> updateProject(@RequestBody Project project, @PathVariable Integer id) {
         CommonResponse response = null;
         String query = null;
         try {
-            query = "INSERT INTO opensourceproject.users (first_name, last_name, email, password, role) VALUES ( ?, ?, ?, ?, ?) ";
-            jdbcTemplate.update(query, user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getRole());
+            query = "UPDATE opensourceproject.project SET name = ?, description = ?, created_by = ?, status = ?, license = ?, created_date = ?, acknowledged_date = ?, acknowledged_by = ?, reason = ?, last_modified_date = ? WHERE id = ?";
+            jdbcTemplate.update(query, project.getName(), project.getDescription(), project.getCreatedBy(), project.getStatus(), project.getLicense(), project.getCreatedDate(), project.getAcknowledgedDate(), project.getAcknowledgedBy(), project.getReason(), project.getLastModifiedDate(), id);
             response = new CommonResponse();
-            response.setMessage("User got registered successfully");
+            response.setMessage("Project got updated successfully.");
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -115,15 +114,15 @@ public class OpenSourceProjectController {
 
     @ApiOperation(value = "delete project")
     @ApiResponse(code = 200, message = "Successfully deleted project")
-    @RequestMapping(value = "project", method = RequestMethod.DELETE)
-    public ResponseEntity<CommonResponse> deleteProject(@RequestBody User user) {
+    @RequestMapping(value = "project/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<CommonResponse> deleteProject(@PathVariable Integer id) {
         CommonResponse response = null;
         String query = null;
         try {
-            query = "INSERT INTO opensourceproject.users (first_name, last_name, email, password, role) VALUES ( ?, ?, ?, ?, ?) ";
-            jdbcTemplate.update(query, user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getRole());
+            query = "delete from opensourceproject.project where id = ?";
+            jdbcTemplate.update(query, id);
             response = new CommonResponse();
-            response.setMessage("User got registered successfully");
+            response.setMessage("Project got deleted successfully.");
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -132,24 +131,97 @@ public class OpenSourceProjectController {
 
     @ApiOperation(value = "Get project")
     @ApiResponse(code = 200, message = "Successfully getting project")
-    @RequestMapping(value = "project", method = RequestMethod.GET)
-    public ResponseEntity<CommonResponse> getProject(@RequestBody User user) {
-        CommonResponse response = null;
-        String query = null;
+    @RequestMapping(value = "project/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Project> getProject(@PathVariable Integer id) {
+        Project response = new Project();
+        String sqlQuery = null;
         try {
-            query = "INSERT INTO opensourceproject.users (first_name, last_name, email, password, role) VALUES ( ?, ?, ?, ?, ?) ";
-            jdbcTemplate.update(query, user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getRole());
-            response = new CommonResponse();
-            response.setMessage("User got registered successfully");
+            sqlQuery = "SELECT id, name, description, created_by, status, license, created_date, acknowledged_date, acknowledged_by, reason, last_modified_date FROM opensourceproject.project where id = ?";
+            Map<String, Object> resultMap = jdbcTemplate.queryForMap(sqlQuery, id);
+
+            response.setId((Integer) resultMap.get("id"));
+            response.setName((String) resultMap.get("name"));
+            response.setDescription((String) resultMap.get("description"));
+            response.setCreatedBy((String) resultMap.get("created_by"));
+            response.setStatus((String) resultMap.get("status"));
+            response.setLicense((String) resultMap.get("license"));
+            response.setCreatedDate((Timestamp) resultMap.get("created_date"));
+            response.setAcknowledgedDate((Timestamp) resultMap.get("acknowledged_date"));
+            response.setAcknowledgedBy((String) resultMap.get("acknowledged_by"));
+            response.setReason((String) resultMap.get("reason"));
+            response.setLastModifiedDate((Timestamp) resultMap.get("last_modified_date"));
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Get projects")
+    @ApiResponse(code = 200, message = "Successfully getting projects")
+    @RequestMapping(value = "project", method = RequestMethod.GET)
+    public ResponseEntity<List<Project>> getAllProjects() {
+        String sqlQuery = null;
+        List<Project> projectList = new ArrayList<>();
+        try {
+            sqlQuery = "SELECT id, name, description, created_by, status, license, created_date, acknowledged_date, acknowledged_by, reason, last_modified_date FROM opensourceproject.project";
+            List<Map<String, Object>> resultList = jdbcTemplate.queryForList(sqlQuery);
+            for(Map<String, Object> resultMap : resultList) {
+                Project project = new Project();
+                project.setId((Integer) resultMap.get("id"));
+                project.setName((String) resultMap.get("name"));
+                project.setDescription((String) resultMap.get("description"));
+                project.setCreatedBy((String) resultMap.get("created_by"));
+                project.setStatus((String) resultMap.get("status"));
+                project.setLicense((String) resultMap.get("license"));
+                project.setCreatedDate((Timestamp) resultMap.get("created_date"));
+                project.setAcknowledgedDate((Timestamp) resultMap.get("acknowledged_date"));
+                project.setAcknowledgedBy((String) resultMap.get("acknowledged_by"));
+                project.setReason((String) resultMap.get("reason"));
+                project.setLastModifiedDate((Timestamp) resultMap.get("last_modified_date"));
+                projectList.add(project);
+            }
 
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(projectList, HttpStatus.OK);
+    }
 
+    @ApiOperation(value = "Get projects using createdBy")
+    @ApiResponse(code = 200, message = "Successfully getting projects")
+    @RequestMapping(value = "project/createdby/{createdBy}", method = RequestMethod.GET)
+    public ResponseEntity<List<Project>> getAllProjects(@PathVariable String createdBy) {
+        String sqlQuery = null;
+        List<Project> projectList = new ArrayList<>();
+        try {
+            sqlQuery = "SELECT id, name, description, created_by, status, license, created_date, acknowledged_date, acknowledged_by, reason, last_modified_date FROM opensourceproject.project where created_by = ?";
+            List<Map<String, Object>> resultList = jdbcTemplate.queryForList(sqlQuery, createdBy);
+            for(Map<String, Object> resultMap : resultList) {
+                Project project = new Project();
+                project.setId((Integer) resultMap.get("id"));
+                project.setName((String) resultMap.get("name"));
+                project.setDescription((String) resultMap.get("description"));
+                project.setCreatedBy((String) resultMap.get("created_by"));
+                project.setStatus((String) resultMap.get("status"));
+                project.setLicense((String) resultMap.get("license"));
+                project.setCreatedDate((Timestamp) resultMap.get("created_date"));
+                project.setAcknowledgedDate((Timestamp) resultMap.get("acknowledged_date"));
+                project.setAcknowledgedBy((String) resultMap.get("acknowledged_by"));
+                project.setReason((String) resultMap.get("reason"));
+                project.setLastModifiedDate((Timestamp) resultMap.get("last_modified_date"));
+                projectList.add(project);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(projectList, HttpStatus.OK);
+    }
 }
 
 
-    INSERT INTO opensourceproject.project ( name, description, proposed_by, status, license, created_date, approved_date, approved_by, rejection_reason, last_modified_date, rejected_date, rejected_by) VALUES (<{id: }>, <{name: }>, <{description: }>, <{proposed_by: }>, <{status: }>, <{license: }>, <{created_date: }>, <{approved_date: }>, <{approved_by: }>, <{rejection_reason: }>, <{last_modified_date: }>, <{rejected_date: }>, <{rejected_by: }>);
+
+
+
+
