@@ -7,16 +7,14 @@ public class Project {
     private Integer id;
     private String name;
     private String description;
-    private String proposedBy;
+    private String createdBy;
     private String status;
     private String license;
     private Timestamp createdDate;
-    private Timestamp approvedDate;
-    private String approvedBy;
-    private String rejectionReason;
+    private Timestamp acknowledgedDate;
+    private String acknowledgedBy;
+    private String reason;
     private Timestamp lastModifiedDate;
-    private Timestamp rejectedDate;
-    private String rejectedBy;
 
     public Integer getId() {
         return id;
@@ -42,12 +40,12 @@ public class Project {
         this.description = description;
     }
 
-    public String getProposedBy() {
-        return proposedBy;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setProposedBy(String proposedBy) {
-        this.proposedBy = proposedBy;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getStatus() {
@@ -74,28 +72,28 @@ public class Project {
         this.createdDate = createdDate;
     }
 
-    public Timestamp getApprovedDate() {
-        return approvedDate;
+    public Timestamp getAcknowledgedDate() {
+        return acknowledgedDate;
     }
 
-    public void setApprovedDate(Timestamp approvedDate) {
-        this.approvedDate = approvedDate;
+    public void setAcknowledgedDate(Timestamp acknowledgedDate) {
+        this.acknowledgedDate = acknowledgedDate;
     }
 
-    public String getApprovedBy() {
-        return approvedBy;
+    public String getAcknowledgedBy() {
+        return acknowledgedBy;
     }
 
-    public void setApprovedBy(String approvedBy) {
-        this.approvedBy = approvedBy;
+    public void setAcknowledgedBy(String acknowledgedBy) {
+        this.acknowledgedBy = acknowledgedBy;
     }
 
-    public String getRejectionReason() {
-        return rejectionReason;
+    public String getReason() {
+        return reason;
     }
 
-    public void setRejectionReason(String rejectionReason) {
-        this.rejectionReason = rejectionReason;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public Timestamp getLastModifiedDate() {
@@ -106,38 +104,20 @@ public class Project {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Timestamp getRejectedDate() {
-        return rejectedDate;
-    }
-
-    public void setRejectedDate(Timestamp rejectedDate) {
-        this.rejectedDate = rejectedDate;
-    }
-
-    public String getRejectedBy() {
-        return rejectedBy;
-    }
-
-    public void setRejectedBy(String rejectedBy) {
-        this.rejectedBy = rejectedBy;
-    }
-
     @Override
     public String toString() {
         return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", proposedBy='" + proposedBy + '\'' +
+                ", createdBy='" + createdBy + '\'' +
                 ", status='" + status + '\'' +
                 ", license='" + license + '\'' +
                 ", createdDate=" + createdDate +
-                ", approvedDate=" + approvedDate +
-                ", approvedBy='" + approvedBy + '\'' +
-                ", rejectionReason='" + rejectionReason + '\'' +
+                ", acknowledgedDate=" + acknowledgedDate +
+                ", acknowledgedBy='" + acknowledgedBy + '\'' +
+                ", reason='" + reason + '\'' +
                 ", lastModifiedDate=" + lastModifiedDate +
-                ", rejectedDate=" + rejectedDate +
-                ", rejectedBy='" + rejectedBy + '\'' +
                 '}';
     }
 }
